@@ -1,11 +1,10 @@
-import React, { useRef, useState } from 'react';
-import './App.css';
+import React, { useRef, useState } from "react";
+import "./App.css";
 
-function Button({onClick}) {
-
+function Button({ text, onClick }) {
   return (
     <div className="ButtonContainer">
-      <button onClick={onClick}>Add user</button>
+      <button onClick={onClick}>{text}</button>
     </div>
   );
 }
