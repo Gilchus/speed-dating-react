@@ -5,26 +5,21 @@ import UserList from "./UserList";
 
 function App() {
   const [users, setUsers] = useState([
-    "simon",
-    "leni",
-    "luis",
-    "lukas",
-    "sigii",
-    "sven",
+    
   ]);
   const [inputText, setInputText] = useState("");
   const [inputErrorText, setInputErrorText] = useState(null);
-  const [sessionStarted, setSessionStarted] = useState(false);
-  const [sessionData, setSessionData] = useState(null);
+  const [currentRound, setCurrentRound] = useState(0);
+  const [sessionData, setSessionData] = useState({rounds: []});
   console.log(sessionData);
 
   useEffect(() => {
-    if (sessionStarted) {
+    if (currentRound != 0) {
       console.log("use effect");
       const matchings = [];
       for (let i = 0; i < users.length / 2; i++) {
         let userA = users[Math.floor(Math.random() * users.length)];
-
+        
         while (
           matchings.find((matching) => {
             if (matching.userA == userA || matching.userB == userA) return true;
@@ -33,29 +28,64 @@ function App() {
           userA = users[Math.floor(Math.random() * users.length)];
         }
 
-        let userB = users[Math.floor(Math.random() * users.length)];
+        const userAlreadyMatched = (userB, matchings)=> {return matchings.find((matching) => {
+          if (matching.userA == userB || matching.userB == userB) return true;
+        })}
 
-        while (
-          userA == userB ||
-          matchings.find((matching) => {
-            if (matching.userA == userB || matching.userB == userB) return true;
-          })
-        ) {
-          userB = users[Math.floor(Math.random() * users.length)];
+        const matchingsMap = new Map();
+        for (const user of users) {
+          if (user == userA) continue;
+          if (userAlreadyMatched(user, matchings)) continue;
+          let matchingCount = 0;
+          for (const round of sessionData.rounds) {
+            for (const matching of round.matchings) {
+              if ((matching.userA == userA && matching.userB == user) || (matching.userA == user && matching.userB == userA)) {
+                matchingCount++;
+                break;
+              }
+            }
+          }
+          matchingsMap.set(user, matchingCount);
         }
+
+        console.log("matching " + userA)
+
+        console.log(matchingsMap);
+
+        let minValue = Number.MAX_VALUE;
+        for (const v of matchingsMap.values()) {
+          if (v < minValue) {
+            minValue = v;
+          }
+        }
+
+        const relevantUsers = [];
+
+        for (const u of matchingsMap.keys()) {
+          if (matchingsMap.get(u) == minValue) {
+            relevantUsers.push(u);
+          }
+        }
+
+        let userB = relevantUsers[Math.floor(Math.random() * relevantUsers.length)];
+  
+        console.log("Matched " + userB)
 
         matchings.push({ userA: userA, userB: userB });
       }
-      setSessionData({ round: 1, matchings: matchings });
+      const round = {number: currentRound, matchings}
+      const rounds = sessionData.rounds;
+      rounds.push(round);
+      setSessionData({ rounds });
     }
-  }, [sessionStarted]);
+  }, [currentRound]);
 
   const handleTextChange = (event) => {
     setInputText(event.target.value);
   };
 
   let content = null;
-  if (!sessionStarted) {
+  if (currentRound == 0) {
     const inputErrorContent =
       inputErrorText != null ? (
         <p className="InputError">{inputErrorText}</p>
@@ -87,21 +117,30 @@ function App() {
         <Button
           text="Start Session"
           onClick={() => {
-            setSessionStarted(true);
+            setCurrentRound(1);
           }}
         ></Button>
       </div>
     );
-  } else if (sessionStarted) {
+  } else {
     let matchingsContent = null;
-    if (sessionData) {
-      matchingsContent = sessionData.matchings.map((matching) => (
-        <p className="MatchingsList" key={matching}>
-          {matching.userA}-{matching.userB}
+    const currentRoundObject = sessionData.rounds.find((round)=> {return round.number == currentRound})
+    
+    if (currentRoundObject) {
+    
+      matchingsContent = currentRoundObject.matchings.map((matching, index) => (
+        <p className="MatchingsList" key={matching.userA + matching.userB}>
+          {index + 1}: {matching.userA}-{matching.userB}
         </p>
       ));
     }
-    content = <div>{matchingsContent}</div>;
+    content = <div>{matchingsContent}
+    <Button
+          text="Next Round"
+          onClick={() => {
+            setCurrentRound(currentRound + 1);
+          }}
+        ></Button></div>;
   }
 
   return (
