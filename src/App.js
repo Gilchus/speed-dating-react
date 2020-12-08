@@ -162,7 +162,7 @@ function App() {
         </p>
       ));
     }
-    content = <div>{matchingsContent}
+    content = <div className="MatchingsContent">{matchingsContent}
     <Button
           text="Next Round"
           onClick={() => {
@@ -170,11 +170,20 @@ function App() {
           }}
         ></Button></div>;
   }
-} else {}
+} else {
+    content = <div className="StartScreen">
+    <Button
+      text="Play">
+      onClick={() => {
+            setSessionStarted(sessionStarted = true);
+          }}
+    </Button>
+  </div>
+}
 
   return (
     <div className="App">
-      <h1>Speed Dating for Founders</h1>
+      <h1 className="Title">Speed Dating for Founders</h1>
       {content}
     </div>
   );
