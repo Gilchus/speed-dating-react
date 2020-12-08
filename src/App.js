@@ -111,10 +111,10 @@ function App() {
         <p className="InputError">{inputErrorText}</p>
       ) : null;
     content = (
-      <div>
-        <h2 className="UserCounter">Users: {users.length}</h2>
+      <div className="Content">
+        <h2 className="UserCounter">Participants: {users.length}</h2>
         <UserList users={users} />
-        <form onSubmit={(event)=>{event.preventDefault() 
+        <form className="Form" onSubmit={(event)=>{event.preventDefault() 
         if (!users.includes(inputText)) {
               users.push(inputText);
               setInputText("");
@@ -135,16 +135,19 @@ function App() {
         <Button
           type="submit"
           text="Add User"
+          disabled={inputText.length == 0}
           onClick={() => {}}
         ></Button>
         </form>
         <Button
           type="button"
           text="Start Session"
+          disabled={users.length < 4}
           onClick={() => {
             setCurrentRound(1);
           }}
         ></Button>
+        {users.length < 4 ? <p className="MinParticipantsHint">Add at least 4 participants</p> : null}
       </div>
     );
   } else {
