@@ -1,10 +1,10 @@
 import React, { useRef, useState } from "react";
 import "./App.css";
 
-function Button({ text, onClick }) {
+function Button({ text, onClick, type }) {
   return (
     <div className="ButtonContainer">
-      <button onClick={onClick}>{text}</button>
+      <button onClick={onClick} type={type}>{text}</button>
     </div>
   );
 }

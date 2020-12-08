@@ -12,27 +12,33 @@ function App() {
   const [inputErrorText, setInputErrorText] = useState(null);
   const [currentRound, setCurrentRound] = useState(0);
   const [sessionData, setSessionData] = useState({rounds: []});
+  const [sessionStarted, setSessionStarted] = useState(true);
   console.log(sessionData);
 
   useEffect(() => {
     if (currentRound != 0) {
       console.log("use effect");
       const matchings = [];
-      for (let i = 0; i < users.length / 2; i++) {
+
+      const matchingsAmount = Math.floor(users.length / 2);
+      const isUnevenAmountOfUsers = users.lenght % 2 != 0;
+      console.log({matchingsAmount});
+
+      const userAlreadyMatched = (userB, matchings)=> {return matchings.find((matching) => {
+          if (matching.users.includes(userB)) return true;
+         })}
+
+      for (let i = 0; i < matchingsAmount; i++) {
         let userA = users[Math.floor(Math.random() * users.length)];
         
         while (
           matchings.find((matching) => {
-            if (matching.userA == userA || matching.userB == userA) return true;
+            if (matching.users.includes(userA)) return true;
           })
         ) {
           userA = users[Math.floor(Math.random() * users.length)];
         }
-
-        const userAlreadyMatched = (userB, matchings)=> {return matchings.find((matching) => {
-          if (matching.userA == userB || matching.userB == userB) return true;
-        })}
-
+        
         const matchingsMap = new Map();
         for (const user of users) {
           if (user == userA) continue;
@@ -40,7 +46,7 @@ function App() {
           let matchingCount = 0;
           for (const round of sessionData.rounds) {
             for (const matching of round.matchings) {
-              if ((matching.userA == userA && matching.userB == user) || (matching.userA == user && matching.userB == userA)) {
+              if (matching.users.includes(userA) && matching.users.includes(user)) {
                 matchingCount++;
                 break;
               }
@@ -72,8 +78,19 @@ function App() {
   
         console.log("Matched " + userB)
 
-        matchings.push({ userA: userA, userB: userB });
+        const matchingUsers = [userA, userB];
+        matchings.push({ users: matchingUsers });
       }
+      if (isUnevenAmountOfUsers) {
+        const singleUser = users.find((user)=> {return !userAlreadyMatched(user, matchings)});
+        console.log({singleUser});
+        const chosenMatching = matchings[Math.floor(Math.random() * matchings.length)];
+        chosenMatching.users.push(singleUser);
+      }
+
+      
+      
+    
       const round = {number: currentRound, matchings}
       const rounds = sessionData.rounds;
       rounds.push(round);
@@ -86,6 +103,8 @@ function App() {
   };
 
   let content = null;
+
+  if (sessionStarted) {
   if (currentRound == 0) {
     const inputErrorContent =
       inputErrorText != null ? (
@@ -95,16 +114,8 @@ function App() {
       <div>
         <h2 className="UserCounter">Users: {users.length}</h2>
         <UserList users={users} />
-        <input
-          onChange={handleTextChange}
-          value={inputText}
-          placeholder="Type name"
-        ></input>
-        {inputErrorContent}
-        <Button
-          text="Add User"
-          onClick={() => {
-            if (!users.includes(inputText)) {
+        <form onSubmit={(event)=>{event.preventDefault() 
+        if (!users.includes(inputText)) {
               users.push(inputText);
               setInputText("");
               console.log(users);
@@ -113,9 +124,22 @@ function App() {
               setInputErrorText("User " + inputText + " is already added!");
               setInputText("");
             }
-          }}
-        ></Button>
+          }}>
+        <input
+          type="text"
+          onChange={handleTextChange}
+          value={inputText}
+          placeholder="Type name"
+        ></input>
+        {inputErrorContent}
         <Button
+          type="submit"
+          text="Add User"
+          onClick={() => {}}
+        ></Button>
+        </form>
+        <Button
+          type="button"
           text="Start Session"
           onClick={() => {
             setCurrentRound(1);
@@ -130,8 +154,8 @@ function App() {
     if (currentRoundObject) {
     
       matchingsContent = currentRoundObject.matchings.map((matching, index) => (
-        <p className="MatchingsList" key={matching.userA + matching.userB}>
-          {index + 1}: {matching.userA}-{matching.userB}
+        <p className="MatchingsList" key={index}>
+          {index + 1}: {matching.users[0]} - {matching.users[1]}{matching.users[2] ? " - " + matching.users[2] : null}
         </p>
       ));
     }
@@ -143,6 +167,7 @@ function App() {
           }}
         ></Button></div>;
   }
+} else {}
 
   return (
     <div className="App">
