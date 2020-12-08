@@ -8,6 +8,7 @@ body {
 html {
   display: table;
   margin: auto;
+  background-color: rgb(31, 30, 30);
 }
 
 html,
@@ -36,9 +37,18 @@ h1 {
   margin-bottom: 15px;
 }
 
+.MatchingsList {
+  max-height: 300px;
+  overflow-y: auto;
+  min-height: 300px;
+  margin-bottom: 15px;
+  font-size: 30px;
+  margin: 10px;
+}
+
 button {
   color: whitesmoke;
-  background-color: rgb(27, 70, 107);
+  background-color: slateblue;
   height: 50px;
   width: 100px;
   font-size: 20px;
@@ -50,7 +60,7 @@ button {
 }
 
 button:hover {
-  background-color: rgb(45, 104, 156);
+  background-color:rgb(72, 63, 131);
   transform: translateY(-5px);
 }
 
@@ -65,5 +75,5 @@ input {
 }
 
 .UserCounter {
-  color: peachpuff;
+  color: slateblue;
 }
